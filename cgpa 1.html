@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGPA Calculation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #E6E6FA; /* Light lavender color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            width: 60%;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        .hidden {
+            display: none;
+        }
+        .navigation-buttons {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="front-page" class="container">
+        <h1>Department of Computer Science</h1>
+        <h2>CGPA Calculation</h2>
+        <label for="semesters">Enter the number of semesters:</label>
+        <input type="number" id="semesters" min="1" max="8">
+        <button onclick="startCalculation()">Next</button>
+    </div>
+
+    <div id="sem-page" class="container hidden">
+        <h2 id="semester-title"></h2>
+        <form id="sem-form">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Grade</th>
+                    </tr>
+                </thead>
+                <tbody id="subject-list">
+                    <!-- Subjects will be inserted here -->
+                </tbody>
+            </table>
+            <div class="navigation-buttons">
+            <button type="button" onclick="previousSemester()">Previous</button>
+            <button type="button" onclick="nextSemester()">Next</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="results-page" class="container hidden">
+        <h2>CGPA Results</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Semester</th>
+                    <th>GPA</th>
+                </tr>
+            </thead>
+            <tbody id="results-list">
+                <!-- Results will be inserted here -->
+            </tbody>
+        </table>
+        <h3 id="final-cgpa"></h3>
+        <button onclick="startOver()">Start Over</button>
+    </div>
+
+    <script>
+        const subjectsData = [
+            ['Communicative English', 'Engineering Chemistry', 'Matrices and calculus', 'Engineering Physics', 'Problem solving and python programming', 'Heritage of tamil', 'Physics and Chemistry Laboratory', 'Problem Solving and Python Programming Laboratory', 'Communicative English Laboratory'],
+            ['Technical English', 'Statistics and Numerical Methods', 'Physics for Computer Science Engineers', 'Engineering Graphics', 'Programming in C', 'Tamils and Technology', 'Environmental Sciences and Sustainability', 'Technical English Laboratory', 'Programming in C Laboratory', 'Engineering Practices Laboratory'],
+            ['Digital Principles and Computer Organization', 'Foundations of Data Science', 'Data Structures', 'Object Oriented Programming', 'Operating Systems', 'Data Structures Laboratory', 'Object Oriented Programming Laboratory', 'Data Science Laboratory', 'Quantitative Aptitude & Verbal Reasoning'],
+            ['Software Engineering', 'Design and Analysis of Algorithms', 'Discrete Mathematics', 'Database Management Systems', 'Java Programming', 'Database Management Systems Laboratory', 'Java Programming Laboratory', 'Quantitative Aptitude & Behavioural Skills'],
+            ['Compiler Design', 'Open Elective-I', 'Computer Networks', 'Full Stack Programming', 'Professional Elective-I', 'Professional Elective-II', 'Quantitative Aptitude & Communication Skills'],
+            ['Mobile Computing', 'Open Elective-II', 'Cryptography and Cyber Security', 'Artificial Intelligence and Machine Learning', 'Professional Elective-III', 'Professional Elective-IV', 'Mobile Application Development Lab', 'Quantitative Aptitude & Soft Skills', 'Mini Project'],
+            ['Human Values and Ethics', 'Elective - Management', 'Open Elective - III', 'Professional Elective - V', 'Professional Elective - VI', 'Internship'],
+            ['Project']
+        ];
+        const creditsData = [
+            [3, 3, 4, 3, 3, 1, 2, 2, 1],
+            [3, 4, 3, 4, 3, 1, 2, 1, 2, 2],
+            [4, 3, 3, 3, 4, 2, 2, 2, 1],
+            [3, 4, 4, 3, 3, 2, 2, 1],
+            [4, 3, 4, 4, 3, 3, 1],
+            [3, 3, 4, 4, 3, 3, 2, 1, 2],
+            [2, 3, 3, 3, 3, 1],
+            [10]
+        ];
+        let currentSem = 0;
+        let semCount = 0;
+        let semGrades = [];
+
+        function startCalculation() {
+            semCount = parseInt(document.getElementById('semesters').value, 10);
+            if (semCount > 0 && semCount <= 8) {
+                document.getElementById('front-page').classList.add('hidden');
+                document.getElementById('sem-page').classList.remove('hidden');
+                showSemester(currentSem);
+            } else {
+                alert("Please enter a valid number of semesters (1-8).");
+            }
+        }
+
+        function showSemester(sem) {
+            document.getElementById('semester-title').innerText = `Semester ${sem + 1}`;
+            const subjects = subjectsData[sem];
+            const subjectList = document.getElementById('subject-list');
+            subjectList.innerHTML = ''; // Clear previous entries
+
+            subjects.forEach((subject, index) => {
+                const row = document.createElement('tr');
+                const subjectCell = document.createElement('td');
+                subjectCell.innerText = subject;
+                const gradeCell = document.createElement('td');
+                const gradeSelect = document.createElement('select');
+                gradeSelect.innerHTML = `
+                    <option value="O">O</option>
+                    <option value="A+">A+</option>
+                    <option value="A">A</option>
+                    <option value="B+">B+</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                    <option value="U">U</option>`;
+                gradeCell.appendChild(gradeSelect);
+                row.appendChild(subjectCell);
+                row.appendChild(gradeCell);
+                subjectList.appendChild(row);
+            });
+        }
+
+        function nextSemester() {
+            const grades = [];
+            const subjectList = document.getElementById('subject-list').children;
+            for (let i = 0; i < subjectList.length; i++) {
+                const grade = subjectList[i].querySelector('select').value;
+                if (grade === 'U') {
+                    alert(`CGPA cannot be calculated because you failed in ${subjectsData[currentSem][i]}`);
+                    return;
+                }
+                grades.push(grade);
+            }
+            semGrades.push(grades);
+            currentSem++;
+            if (currentSem < semCount) {
+                showSemester(currentSem);
+            } else {
+                showResults();
+            }
+        }
+
+        function previousSemester() {
+            if (currentSem > 0) {
+                currentSem--;
+                semGrades.pop();
+                showSemester(currentSem);
+            }
+        }
+
+        function showResults() {
+            document.getElementById('sem-page').classList.add('hidden');
+            document.getElementById('results-page').classList.remove('hidden');
+            const resultsList = document.getElementById('results-list');
+            resultsList.innerHTML = ''; // Clear previous results
+
+            let totalGpa = 0;
+            semGrades.forEach((grades, index) => {
+                const row = document.createElement('tr');
+                const sNoCell = document.createElement('td');
+                sNoCell.innerText = index + 1;
+                const semCell = document.createElement('td');
+                semCell.innerText = `Semester ${index + 1}`;
+                const gpaCell = document.createElement('td');
+                const gpa = calculateGpa(grades, index);
+                gpaCell.innerText = gpa.toFixed(2);
+                row.appendChild(sNoCell);
+                row.appendChild(semCell);
+                row.appendChild(gpaCell);
+                resultsList.appendChild(row);
+                totalGpa += gpa;
+            });
+
+            const cgpa = totalGpa / semCount;
+            document.getElementById('final-cgpa').innerText = `Total CGPA: ${cgpa.toFixed(2)}`;
+        }
+
+        function calculateGpa(grades, sem) {
+            const gradePoints = { 'O': 10, 'A+': 9, 'A': 8, 'B+': 7, 'B': 6, 'C': 5, 'U': 0 };
+            let totalPoints = 0;
+            let totalCredits = 0;
+
+            grades.forEach((grade, index) => {
+                const points = gradePoints[grade];
+                totalPoints += points * creditsData[sem][index];
+                totalCredits += creditsData[sem][index];
+            });
+
+            return totalPoints / totalCredits;
+        }
+
+        function startOver() {
+            document.getElementById('results-page').classList.add('hidden');
+            document.getElementById('front-page').classList.remove('hidden');
+            currentSem = 0;
+            semGrades = [];
+        }
+    </script>
+</body>
+</html>
