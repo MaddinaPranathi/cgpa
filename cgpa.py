@@ -1,19 +1,17 @@
-# Function to convert grades to grade points
+
 def grade_to_points(grade):
     grade_dict = {'O': 10,'A+': 9,'A': 8,'B+': 7,'B': 6,'C': 5,'U': 0 }
-    # U means the student has failed in that subject
+    
     return grade_dict.get(grade)
-
-# Module for credit-based GPA calculation
+    
 def calculate_gpa(credits, grades):
-    total_points = 0#total points obtained by the student
-    total_credits = 0#total credits of that particular semester
+    total_points = 0
+    total_credits = 0
     for i in range(len(credits)):
         total_points += credits[i] * grade_to_points(grades[i])
         total_credits += credits[i]
     return total_points / total_credits
 
-# Function for each semester
 def calculate_sem_gpa(sem_credits, sem_subjects):
     sem_grades = []
     for i in range(len(sem_subjects)):
@@ -24,14 +22,13 @@ def calculate_sem_gpa(sem_credits, sem_subjects):
         sem_grades.append(grade)
     return calculate_gpa(sem_credits, sem_grades)
 
-# Main function to calculate CGPA
 def calculate_cgpa():
     num_semesters = int(input("Enter the number of semesters you want to calculate CGPA for: "))
     sem_gpas = []
     if(0<num_semesters<=8):
         for sem in range(num_semesters):
             print(f"\n--- Semester {sem+1} ---")
-            # Predefined subjects and credits for each semester
+        
             if sem == 0:
                 sem_subjects = ('Communicative English','Engineering Chemistry','Matrices and calculus', 'Engineering Physics', 'Problem solving and python programming','Heritage of tamil','Physics and Chemistry Laboratory',
 'Problem Solving and Python Programming Laboratory','Communicative English Laboratory')
@@ -57,8 +54,7 @@ def calculate_cgpa():
             elif sem==7:
                 sem_subjects =('project')
                 sem_credits =(10)
-            # Add more semesters as needed
-        
+                    
             sem_gpa = calculate_sem_gpa(sem_credits, sem_subjects)
             if sem_gpa is None:
                 return
@@ -70,5 +66,5 @@ def calculate_cgpa():
     else:
         print("enter a valid semester number ")
 
-# Run the CGPA calculation
 calculate_cgpa()
+
